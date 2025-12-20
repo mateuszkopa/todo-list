@@ -6,13 +6,13 @@ Podstawowe operacje na obiektach zadań (Backend).
 - [X] **Tworzenie zadania:** Przetwarzanie danych z formularza i utworzenie obiektu zadania.
 - [ ] **Edycja zadania:** Możliwość zmiany parametrów istniejącego zadania.
 - [X] **Usuwanie zadania:** Usunięcie zadania z bazy danych/pliku na podstawie ID.
-- [ ] **Zmiana statusu:** Logika obsugi oznaczania zadania jako "Wykonane" (Done).
+- [X] **Zmiana statusu:** Logika obsugi oznaczania zadania jako "Wykonane" (Done).
 
 ## 2. Atrybuty i Model Danych
 Szczegółowe właściwości obiektów.
-- [ ] **Priorytety:** Obsługa typu wyliczeniowego: *1, 2, 3*.
-- [ ] **Kategorie:** Przypisywanie etykiet do zadań (np. *Praca, Dom, Studia*).
-- [ ] **Terminy (Deadline):** Przechowywanie i formatowanie daty wykonania.
+- [X] **Priorytety:** Obsługa typu wyliczeniowego: *1, 2, 3*.
+- [X] **Kategorie:** Przypisywanie etykiet do zadań (np. *Praca, Dom, Studia*).
+- [X] **Terminy (Deadline):** Przechowywanie i formatowanie daty wykonania.
 - [ ] **Walidacja (Backend):** Sprawdzanie poprawności danych przesyłanych przez formularz (np. czy data nie jest pusta).
 
 ## 3. Przeglądanie i Organizacja
@@ -21,14 +21,14 @@ Logika przygotowania danych dla widoku.
 - [ ] **Sortowanie:** Sortowanie listy zadań po dacie lub priorytecie przed wysłaniem do widoku.
 
 ## 4. Trwałość Danych (Persistence)
-- [ ] **Repozytorium:** Warstwa odpowiedzialna za zapis i odczyt danych.
+- [X] **Repozytorium:** Warstwa odpowiedzialna za zapis i odczyt danych.
     * MariaDB.
 
 ## 5. Interfejs Webowy (Frontend)
 Warstwa wizualna oparta o HTML/CSS.
-- [ ] **Strona Główna (Dashboard):** Wyświetla listę wszystkich zadań w formie tabeli lub kafelków.
-- [ ] **Formularz Dodawania:** Strona z polami: Tytuł, Kategoria, Priorytet, Data.
-- [ ] **Interakcje:**
-    - [ ] Przycisk "Usuń" przy każdym zadaniu.
-    - [ ] Checkbox lub przycisk do zmiany statusu na "Wykonane".
+- [X] **Strona Główna (Dashboard):** Wyświetla listę wszystkich zadań w formie tabeli lub kafelków.
+- [X] **Formularz Dodawania:** Strona z polami: Tytuł, Kategoria, Priorytet, Data.
+- [X] **Interakcje:**
+    - [X] Przycisk "Usuń" przy każdym zadaniu.
+    - [X] Checkbox lub przycisk do zmiany statusu na "Wykonane".
     - [ ] Wizualne wyróżnienie priorytetów (np. kolor czerwony dla "High").
