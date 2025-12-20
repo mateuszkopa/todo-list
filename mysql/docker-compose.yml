@@ -1,12 +1,14 @@
 services:
-  mysql-db:
-    image: mysql:8.0
-    container_name: mysql_server
+  mariadb:
+    image: mariadb
+    container_name: mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: R00Tpa$$w0rd
-      MYSQL_DATABASE: todo-list
-    ports:
-      - "1234:3306"
+      - MYSQL_ROOT_PASSWORD=R00Tpa$$w0rd
+      - MYSQL_DATABASE=todo-list
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=MegaTajneHaslo
     volumes:
-      - ./db_data:/var/lib/mysql
+      - ./db:/config
+    ports:
+       - 3306:3306
     restart: unless-stopped
