@@ -10,11 +10,11 @@
     --danger-color: #ff3b30;
     --border-color: #e0e0e0;
     --tag-bg: #e6f0ff;
-    --btn-bg: #f0f0f5; /* Nowa zmienna dla tła przycisków */
+    --btn-bg: #f0f0f5;
     
     /* Wymiary i inne */
     --sidebar-width: 280px;
-    --sidebar-collapsed-width: 70px; /* Nieco szerzej dla estetyki */
+    --sidebar-collapsed-width: 70px;
     --transition-speed: 0.3s;
 }
 
@@ -29,7 +29,7 @@ body.dark-mode {
     --text-muted: #a0a0a0;
     --border-color: #3a3a3c;
     --tag-bg: #1a2a40;
-    --btn-bg: #2c2c2e; /* Ciemne tło przycisków */
+    --btn-bg: #2c2c2e;
 }
 
 * {
@@ -75,7 +75,8 @@ body {
 .sidebar.collapsed .nav-text, 
 .sidebar.collapsed h3, 
 .sidebar.collapsed .add-task-btn span:nth-child(2),
-.sidebar.collapsed .theme-btn-text { 
+.sidebar.collapsed .theme-btn-text,
+.sidebar.collapsed .nav-text-container { 
     display: none;
 }
 
@@ -84,16 +85,16 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px; /* Większy odstęp */
+    margin-bottom: 30px;
     gap: 10px;
 }
 
 .sidebar.collapsed .sidebar-header-buttons {
-    flex-direction: column-reverse; /* Odwracamy kolejność przy zwinięciu dla estetyki */
+    flex-direction: column-reverse;
     gap: 15px;
 }
 
-/* PRZYCISK ZWIJANIA (Strzałka) */
+/* PRZYCISK ZWIJANIA */
 .toggle-btn {
     background: none;
     border: none;
@@ -117,11 +118,11 @@ body {
     color: var(--primary-color);
 }
 
-/* --- NOWY STYL PRZYCISKU MOTYWU --- */
+/* PRZYCISK MOTYWU */
 .theme-btn {
-    background-color: var(--btn-bg); /* Tło kafelka */
+    background-color: var(--btn-bg);
     border: 1px solid var(--border-color);
-    border-radius: 8px; /* Zaokrąglenie */
+    border-radius: 8px;
     cursor: pointer;
     padding: 8px 12px;
     display: flex;
@@ -131,19 +132,18 @@ body {
     font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.2s ease;
-    flex-grow: 1; /* Rozciągnij na dostępną szerokość */
+    flex-grow: 1;
     justify-content: center;
 }
 
 .theme-btn:hover {
-    background-color: var(--border-color); /* Ciemniejsze tło przy hover */
-    transform: translateY(-1px); /* Lekkie uniesienie */
+    background-color: var(--border-color);
+    transform: translateY(-1px);
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-/* Styl dla zwiniętego sidebaru */
 .sidebar.collapsed .theme-btn {
-    padding: 8px; /* Mniejszy padding, żeby był kwadratowy */
+    padding: 8px;
     width: 40px;
     height: 40px;
     flex-grow: 0;
@@ -170,7 +170,7 @@ body {
     margin-bottom: 20px;
     transition: background 0.2s, padding 0.3s;
     width: 100%;
-    box-shadow: 0 4px 6px rgba(0, 122, 255, 0.2); /* Cień dla koloru głównego */
+    box-shadow: 0 4px 6px rgba(0, 122, 255, 0.2);
 }
 
 .add-task-btn:hover {
@@ -210,6 +210,7 @@ body {
     transition: background 0.2s;
     overflow: hidden;
     margin-bottom: 2px;
+    position: relative; /* Ważne dla przycisku usuwania */
 }
 
 .nav-item:hover {
@@ -226,6 +227,42 @@ body {
     font-size: 1.2rem;
     min-width: 24px;
     text-align: center;
+}
+
+/* --- STYLE DLA USUWANIA KATEGORII (NOWE) --- */
+.nav-text-container {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.delete-cat-btn {
+    opacity: 0; /* Domyślnie ukryte */
+    color: var(--text-muted);
+    font-weight: bold;
+    padding: 2px 8px;
+    margin-left: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+    z-index: 5;
+}
+
+/* Pokazujemy przycisk po najechaniu na kategorię */
+.nav-item:hover .delete-cat-btn {
+    opacity: 1;
+}
+
+.delete-cat-btn:hover {
+    color: var(--danger-color);
+    background-color: rgba(255, 59, 48, 0.1);
+}
+
+/* Ukrywamy, jeśli sidebar zwinięty */
+.sidebar.collapsed .delete-cat-btn {
+    display: none !important;
 }
 
 /* --- MAIN CONTENT --- */
