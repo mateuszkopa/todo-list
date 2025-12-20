@@ -3,9 +3,9 @@ Projekt realizowany w ramach przedmiotu Programowanie Obiektowe. Aplikacja jest 
 
 ## 1. Zarządzanie Zadaniami (Logika Biznesowa)
 Podstawowe operacje na obiektach zadań (Backend).
-- [ ] **Tworzenie zadania:** Przetwarzanie danych z formularza i utworzenie obiektu zadania.
+- [X] **Tworzenie zadania:** Przetwarzanie danych z formularza i utworzenie obiektu zadania.
 - [ ] **Edycja zadania:** Możliwość zmiany parametrów istniejącego zadania.
-- [ ] **Usuwanie zadania:** Usunięcie zadania z bazy danych/pliku na podstawie ID.
+- [X] **Usuwanie zadania:** Usunięcie zadania z bazy danych/pliku na podstawie ID.
 - [ ] **Zmiana statusu:** Logika obsugi oznaczania zadania jako "Wykonane" (Done).
 
 ## 2. Atrybuty i Model Danych
