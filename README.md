@@ -10,7 +10,7 @@ Podstawowe operacje na obiektach zadań (Backend).
 
 ## 2. Atrybuty i Model Danych
 Szczegółowe właściwości obiektów.
-- [ ] **Priorytety:** Obsługa typu wyliczeniowego: *High, Medium, Low*.
+- [ ] **Priorytety:** Obsługa typu wyliczeniowego: *1, 2, 3*.
 - [ ] **Kategorie:** Przypisywanie etykiet do zadań (np. *Praca, Dom, Studia*).
 - [ ] **Terminy (Deadline):** Przechowywanie i formatowanie daty wykonania.
 - [ ] **Walidacja (Backend):** Sprawdzanie poprawności danych przesyłanych przez formularz (np. czy data nie jest pusta).
@@ -27,7 +27,7 @@ Logika przygotowania danych dla widoku.
 ## 5. Interfejs Webowy (Frontend)
 Warstwa wizualna oparta o HTML/CSS.
 - [ ] **Strona Główna (Dashboard):** Wyświetla listę wszystkich zadań w formie tabeli lub kafelków.
-- [ ] **Formularz Dodawania:** Strona z polami: Tytuł, Opis, Kategoria, Priorytet, Data.
+- [ ] **Formularz Dodawania:** Strona z polami: Tytuł, Kategoria, Priorytet, Data.
 - [ ] **Interakcje:**
     - [ ] Przycisk "Usuń" przy każdym zadaniu.
     - [ ] Checkbox lub przycisk do zmiany statusu na "Wykonane".
