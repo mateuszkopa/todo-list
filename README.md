@@ -11,7 +11,7 @@ Podstawowe operacje na obiektach zadań (Backend).
 
 ## 2. Atrybuty i Model Danych
 Szczegółowe właściwości obiektów.
-- [ ] **Priorytety:** Obsługa typu wyliczeniowego: *High, Medium, Low*.
+- [ ] **Priorytety:** Obsługa typu wyliczeniowego: *1, 2, 3*.
 - [ ] **Kategorie:** Przypisywanie etykiet do zadań (np. *Praca, Dom, Studia*).
 - [ ] **Terminy (Deadline):** Przechowywanie i formatowanie daty wykonania.
 - [ ] **Walidacja (Backend):** Sprawdzanie poprawności danych przesyłanych przez formularz (np. czy data nie jest pusta).
