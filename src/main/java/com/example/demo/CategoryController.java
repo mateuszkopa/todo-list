@@ -1,5 +1,9 @@
-import org.springframework.http.ResponseEntity; // Dodaj importy
+package com.example.demo;
+
+import org.springframework.beans.factory.annotation.Autowired; // TO BYŁO BRAKUJĄCE
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -8,6 +12,11 @@ public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @GetMapping
+    public List<Category> getAllCategories() {
+        return categoryService.getAllCategories();
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
