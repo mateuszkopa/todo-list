@@ -70,7 +70,7 @@
             display: flex;
             gap: 10px;
         }
-        input[type="text"], select {
+        input[type="text"], input[type="date"], select {
             padding: 0.5rem;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -105,6 +105,7 @@
                 <option value="new">+ Nowa kategoria</option>
             </select>
         </div>
+        <input type="date" id="todo-deadline" placeholder="Termin wykonania">
         <input type="text" id="todo-category-input" placeholder="Nazwa nowej kategorii" style="display: none;">
         <button type="submit">Dodaj zadanie</button>
     </form>
@@ -116,6 +117,7 @@
         const todoForm = document.getElementById('todo-form');
         const todoInput = document.getElementById('todo-input');
         const todoPriority = document.getElementById('todo-priority');
+        const todoDeadline = document.getElementById('todo-deadline');
         const todoCategorySelect = document.getElementById('todo-category-select');
         const todoCategoryInput = document.getElementById('todo-category-input');
         const apiUrl = '/api/todos';
@@ -182,8 +184,9 @@
                 const span = document.createElement('span');
                 const categoryName = todo.category ? todo.category.name : 'Brak kategorii';
                 const priority = todo.priority ? `P${todo.priority}` : '';
+                const deadline = todo.deadline ? `(do: ${todo.deadline})` : '';
                 
-                span.innerHTML = `${todo.content} <span class="meta-info">[${categoryName}] ${priority}</span>`;
+                span.innerHTML = `${todo.content} <span class="meta-info">[${categoryName}] ${priority} ${deadline}</span>`;
                 span.addEventListener('click', () => toggleTodoStatus(todo.id, !todo.completed));
 
                 const deleteBtn = document.createElement('button');
@@ -197,12 +200,13 @@
             });
         }
 
-        async function addTodo(content, priority, categoryName) {
+        async function addTodo(content, priority, categoryName, deadline) {
             const payload = {
                 content: content,
                 priority: parseInt(priority),
                 completed: false,
-                category: { name: categoryName }
+                category: { name: categoryName },
+                deadline: deadline || null
             };
 
             try {
@@ -252,6 +256,7 @@
             e.preventDefault();
             const content = todoInput.value.trim();
             const priority = todoPriority.value;
+            const deadline = todoDeadline.value;
             let categoryName = todoCategorySelect.value;
             
             if (categoryName === 'new') {
@@ -259,10 +264,11 @@
             }
 
             if (content && categoryName && categoryName !== 'new') {
-                addTodo(content, priority, categoryName);
+                addTodo(content, priority, categoryName, deadline);
                 todoInput.value = '';
                 todoCategoryInput.value = '';
                 todoCategorySelect.value = '';
+                todoDeadline.value = '';
                 todoCategoryInput.style.display = 'none';
             } else if (!categoryName || categoryName === 'new') {
                 alert('Proszę wybrać lub wpisać kategorię.');
