@@ -1,5 +1,4 @@
 # Specyfikacja Wymagań - Organizer Zadań (Web To-Do List)
-
 Projekt realizowany w ramach przedmiotu Programowanie Obiektowe. Aplikacja jest serwisem internetowym służącym do zarządzania listą zadań z uwzględnieniem priorytetów, kategorii oraz terminów realizacji.
 
 ## 1. Zarządzanie Zadaniami (Logika Biznesowa)
