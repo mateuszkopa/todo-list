@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDO</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #app {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #ddd;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        li span {
+            flex-grow: 1;
+            cursor: pointer;
+        }
+        li.completed span {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .meta-info {
+            font-size: 0.8rem;
+            color: #666;
+            margin-right: 10px;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ff3b30;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"], select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex-grow: 1;
+        }
+        button[type="submit"] {
+            padding: 0.5rem 1rem;
+            border: none;
+            background-color: #007aff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <h1>Lista ToDo</h1>
+    <ul id="todo-list"></ul>
+    <form id="todo-form">
+        <input type="text" id="todo-input" placeholder="Treść zadania" autocomplete="off" required>
+        <div class="form-row">
+            <select id="todo-priority">
+                <option value="1">Priorytet 1 (Najważniejszy)</option>
+                <option value="2">Priorytet 2</option>
+                <option value="3">Priorytet 3 (Najmniej ważny)</option>
+            </select>
+            <select id="todo-category-select">
+                <option value="">Wybierz kategorię...</option>
+                <option value="new">+ Nowa kategoria</option>
+            </select>
+        </div>
+        <input type="text" id="todo-category-input" placeholder="Nazwa nowej kategorii" style="display: none;">
+        <button type="submit">Dodaj zadanie</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const todoList = document.getElementById('todo-list');
+        const todoForm = document.getElementById('todo-form');
+        const todoInput = document.getElementById('todo-input');
+        const todoPriority = document.getElementById('todo-priority');
+        const todoCategorySelect = document.getElementById('todo-category-select');
+        const todoCategoryInput = document.getElementById('todo-category-input');
+        const apiUrl = '/api/todos';
+        const categoriesUrl = '/api/categories';
+
+        async function fetchCategories() {
+            try {
+                const response = await fetch(categoriesUrl);
+                const categories = await response.json();
+                populateCategorySelect(categories);
+            } catch (error) {
+                console.error('Failed to fetch categories:', error);
+            }
+        }
+
+        function populateCategorySelect(categories) {
+            // Keep the first two options
+            const defaultOption = todoCategorySelect.options[0];
+            const newOption = todoCategorySelect.options[1];
+            todoCategorySelect.innerHTML = '';
+            todoCategorySelect.appendChild(defaultOption);
+            todoCategorySelect.appendChild(newOption);
+
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.name; // Use name as value for simplicity in matching
+                option.textContent = category.name;
+                todoCategorySelect.appendChild(option);
+            });
+        }
+
+        todoCategorySelect.addEventListener('change', () => {
+            if (todoCategorySelect.value === 'new') {
+                todoCategoryInput.style.display = 'block';
+                todoCategoryInput.required = true;
+                todoCategoryInput.focus();
+            } else {
+                todoCategoryInput.style.display = 'none';
+                todoCategoryInput.required = false;
+            }
+        });
+
+        async function fetchTodos() {
+            try {
+                const response = await fetch(apiUrl);
+                const todos = await response.json();
+                renderTodos(todos);
+            } catch (error) {
+                console.error('Failed to fetch todos:', error);
+            }
+        }
+
+        function renderTodos(todos) {
+            todoList.innerHTML = '';
+            // Sort by priority then ID
+            todos.sort((a, b) => (a.priority || 3) - (b.priority || 3) || a.id - b.id);
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                li.dataset.id = todo.id;
+                if (todo.completed) {
+                    li.classList.add('completed');
+                }
+
+                const span = document.createElement('span');
+                const categoryName = todo.category ? todo.category.name : 'Brak kategorii';
+                const priority = todo.priority ? `P${todo.priority}` : '';
+                
+                span.innerHTML = `${todo.content} <span class="meta-info">[${categoryName}] ${priority}</span>`;
+                span.addEventListener('click', () => toggleTodoStatus(todo.id, !todo.completed));
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '✖';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.addEventListener('click', () => deleteTodo(todo.id));
+
+                li.appendChild(span);
+                li.appendChild(deleteBtn);
+                todoList.appendChild(li);
+            });
+        }
+
+        async function addTodo(content, priority, categoryName) {
+            const payload = {
+                content: content,
+                priority: parseInt(priority),
+                completed: false,
+                category: { name: categoryName }
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    fetchTodos();
+                    fetchCategories(); // Refresh categories in case a new one was added
+                }
+            } catch (error) {
+                console.error('Failed to add todo:', error);
+            }
+        }
+
+        async function toggleTodoStatus(id, completed) {
+            try {
+                const response = await fetch(`${apiUrl}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ completed: completed })
+                });
+                if (response.ok) {
+                    fetchTodos();
+                }
+            } catch (error) {
+                console.error('Failed to update todo:', error);
+            }
+        }
+
+        async function deleteTodo(id) {
+            try {
+                const response = await fetch(`${apiUrl}/${id}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    fetchTodos();
+                }
+            } catch (error) {
+                console.error('Failed to delete todo:', error);
+            }
+        }
+
+        todoForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const content = todoInput.value.trim();
+            const priority = todoPriority.value;
+            let categoryName = todoCategorySelect.value;
+            
+            if (categoryName === 'new') {
+                categoryName = todoCategoryInput.value.trim();
+            }
+
+            if (content && categoryName && categoryName !== 'new') {
+                addTodo(content, priority, categoryName);
+                todoInput.value = '';
+                todoCategoryInput.value = '';
+                todoCategorySelect.value = '';
+                todoCategoryInput.style.display = 'none';
+            } else if (!categoryName || categoryName === 'new') {
+                alert('Proszę wybrać lub wpisać kategorię.');
+            }
+        });
+
+        fetchCategories();
+        fetchTodos();
+    });
+</script>
+
+</body>
+</html>
