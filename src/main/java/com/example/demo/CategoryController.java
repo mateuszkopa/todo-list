@@ -1,20 +1,22 @@
-package com.example.demo;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
+import org.springframework.http.ResponseEntity; // Dodaj importy
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/categories")
+@CrossOrigin(origins = "*")
 public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping
-    public List<Category> getAllCategories() {
-        return categoryService.getAllCategories();
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
+        boolean isDeleted = categoryService.deleteCategory(id);
+        
+        if (isDeleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(409).body("Nie można usunąć kategorii, która zawiera zadania.");
+        }
     }
 }
