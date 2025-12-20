@@ -134,19 +134,26 @@
         }
 
         function populateCategorySelect(categories) {
-            // Keep the first two options
-            const defaultOption = todoCategorySelect.options[0];
-            const newOption = todoCategorySelect.options[1];
+            // Capture default and new options
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";
+            defaultOption.textContent = "Wybierz kategorię...";
+            
+            const newOption = document.createElement('option');
+            newOption.value = "new";
+            newOption.textContent = "+ Nowa kategoria";
+
             todoCategorySelect.innerHTML = '';
             todoCategorySelect.appendChild(defaultOption);
-            todoCategorySelect.appendChild(newOption);
 
             categories.forEach(category => {
                 const option = document.createElement('option');
-                option.value = category.name; // Use name as value for simplicity in matching
+                option.value = category.name;
                 option.textContent = category.name;
                 todoCategorySelect.appendChild(option);
             });
+
+            todoCategorySelect.appendChild(newOption);
         }
 
         todoCategorySelect.addEventListener('change', () => {
