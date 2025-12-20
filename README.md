@@ -28,7 +28,7 @@ Logika przygotowania danych dla widoku.
 ## 5. Interfejs Webowy (Frontend)
 Warstwa wizualna oparta o HTML/CSS.
 - [ ] **Strona Główna (Dashboard):** Wyświetla listę wszystkich zadań w formie tabeli lub kafelków.
-- [ ] **Formularz Dodawania:** Strona z polami: Tytuł, Opis, Kategoria, Priorytet, Data.
+- [ ] **Formularz Dodawania:** Strona z polami: Tytuł, Kategoria, Priorytet, Data.
 - [ ] **Interakcje:**
     - [ ] Przycisk "Usuń" przy każdym zadaniu.
     - [ ] Checkbox lub przycisk do zmiany statusu na "Wykonane".
