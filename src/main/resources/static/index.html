@@ -175,7 +175,7 @@
         const sidebarToggleBtn = document.getElementById('sidebar-toggle');
         const themeToggleBtn = document.getElementById('theme-toggle');
         const themeIcon = themeToggleBtn.querySelector('.theme-icon');
-        const themeText = themeToggleBtn.querySelector('.theme-btn-text'); // Tekst przycisku
+        const themeText = themeToggleBtn.querySelector('.theme-btn-text');
 
         // URL API
         const API_URL = '/api/todos';
@@ -291,7 +291,7 @@
             });
         }
 
-        // --- API & LOGIKA DANYCH (Bez zmian) ---
+        // --- API & LOGIKA DANYCH ---
         async function fetchData() {
             try {
                 const [todosRes, catsRes] = await Promise.all([
@@ -353,6 +353,47 @@
                 if(t) t.completed = isCompleted;
                 renderMainView();
             } catch(err) { console.error(err); }
+        }
+
+        // --- NOWE: FUNKCJA USUWANIA KATEGORII ---
+        async function deleteCategory(id, name) {
+            // 1. Sprawdzenie lokalne (szybkie - opcjonalne)
+            const hasTasks = todos.some(t => t.category && t.category.name === name);
+            if (hasTasks) {
+                alert(`Nie można usunąć kategorii "${name}", ponieważ zawiera aktywne zadania.`);
+                return;
+            }
+
+            // 2. Potwierdzenie użytkownika
+            if (!confirm(`Czy na pewno usunąć pustą kategorię "${name}"?`)) {
+                return;
+            }
+
+            // 3. Wysłanie żądania do serwera
+            try {
+                const res = await fetch(`${CAT_URL}/${id}`, { method: 'DELETE' });
+                
+                if (res.ok) {
+                    // Sukces: usuwamy z listy lokalnej i odświeżamy widok
+                    categories = categories.filter(c => c.id !== id);
+                    renderSidebarCategories();
+                    
+                    // Jeśli akurat przeglądaliśmy tę kategorię, wróć do "Wszystkie"
+                    if (activeFilter && activeFilter.type === 'category' && activeFilter.value === name) {
+                        currentView = 'all';
+                        activeFilter = null;
+                        document.querySelector('[data-view="all"]').classList.add('active');
+                        renderMainView();
+                    }
+                } else if (res.status === 409) {
+                    // Błąd z serwera (Konflikt)
+                    alert("Serwer zablokował usunięcie: Kategoria nie jest pusta.");
+                } else {
+                    alert("Wystąpił błąd podczas usuwania.");
+                }
+            } catch (err) {
+                console.error("Błąd sieci:", err);
+            }
         }
 
         // --- RENDEROWANIE ---
@@ -460,16 +501,36 @@
             return el;
         }
 
+        // --- ZMODYFIKOWANA FUNKCJA KATEGORII (Z przyciskiem usuwania) ---
         function renderSidebarCategories() {
             const list = document.getElementById('category-list');
             list.innerHTML = '';
             categories.forEach(cat => {
                 const li = document.createElement('li');
                 li.className = 'nav-item';
-                li.innerHTML = `<span class="icon">📂</span> <span class="nav-text">${cat.name}</span>`;
+                
+                // Struktura HTML z przyciskiem X
+                li.innerHTML = `
+                    <span class="icon">📂</span> 
+                    <div class="nav-text-container">
+                        <span class="nav-text">${cat.name}</span>
+                    </div>
+                    <span class="delete-cat-btn" title="Usuń kategorię">×</span>
+                `;
+
+                // Kliknięcie w całą kategorię -> Filtruj
                 li.addEventListener('click', () => {
                     applyFilter('category', cat.name, cat.name);
+                    setActiveNavItem(li);
                 });
+
+                // Kliknięcie w X -> Usuń (blokujemy propagację)
+                const deleteBtn = li.querySelector('.delete-cat-btn');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Ważne: nie uruchamiaj filtrowania
+                    deleteCategory(cat.id, cat.name);
+                });
+
                 list.appendChild(li);
             });
         }
