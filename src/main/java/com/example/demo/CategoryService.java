@@ -1,8 +1,9 @@
-
+package com.example.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional; // Dodano brakujący import
 
 @Service
 public class CategoryService {
@@ -11,14 +12,13 @@ public class CategoryService {
     private CategoryRepository categoryRepository;
 
     @Autowired
-    private TodoRepository todoRepository; 
+    private TodoRepository todoRepository;
 
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }
 
     public Category getOrCreateCategory(String name) {
-        // ... (stara logika bez zmian)
         return categoryRepository.findByName(name)
                 .orElseGet(() -> {
                     Category newCategory = new Category();
@@ -30,7 +30,7 @@ public class CategoryService {
     public boolean deleteCategory(Long id) {
         long taskCount = todoRepository.countByCategory_Id(id);
         if (taskCount > 0) {
-            return false; 
+            return false;
         }
         categoryRepository.deleteById(id);
         return true;
