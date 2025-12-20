@@ -23,7 +23,7 @@ Logika przygotowania danych dla widoku.
 
 ## 4. Trwałość Danych (Persistence)
 - [ ] **Repozytorium:** Warstwa odpowiedzialna za zapis i odczyt danych.
-    * MySQL.
+    * MariaDB.
 
 ## 5. Interfejs Webowy (Frontend)
 Warstwa wizualna oparta o HTML/CSS.
