@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo - Mój Organizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app-container">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header-buttons">
+             <button class="theme-btn" id="theme-toggle" title="Przełącz motyw">
+                <span class="icon theme-icon">🌙</span>
+                <span class="nav-text theme-btn-text">Tryb ciemny</span>
+            </button>
+            
+            <button class="toggle-btn" id="sidebar-toggle" title="Zwiń/Rozwiń menu">❮</button>
+        </div>
+        
+        <button class="add-task-btn" id="open-add-modal">
+            <span class="icon">+</span>
+            <span class="nav-text">Dodaj Zadanie</span>
+        </button>
+
+        <ul class="nav-list">
+            <li class="nav-item active" data-view="all">
+                <span class="icon">∞</span>
+                <span class="nav-text">Wszystkie</span>
+            </li>
+            <li class="nav-item" data-view="today">
+                <span class="icon">📅</span>
+                <span class="nav-text">Dziś</span>
+            </li>
+            <li class="nav-item" data-view="upcoming">
+                <span class="icon">🔮</span>
+                <span class="nav-text">Nadchodzące (7 dni)</span>
+            </li>
+            <li class="nav-item" id="open-filter-modal">
+                <span class="icon">🌪️</span>
+                <span class="nav-text">Filtruj...</span>
+            </li>
+        </ul>
+
+        <div class="nav-section">
+            <h3>Kategorie</h3>
+            <ul class="nav-list" id="category-list">
+                </ul>
+        </div>
+
+        <div class="nav-section">
+            <h3>Priorytety</h3>
+            <ul class="nav-list">
+                <li class="nav-item" data-filter-type="priority" data-filter-value="1">
+                    <span class="icon" style="color: #ff3b30;">!!!</span>
+                    <span class="nav-text">Wysoki (P1)</span>
+                </li>
+                <li class="nav-item" data-filter-type="priority" data-filter-value="2">
+                    <span class="icon" style="color: #ff9500;">!!</span>
+                    <span class="nav-text">Średni (P2)</span>
+                </li>
+                <li class="nav-item" data-filter-type="priority" data-filter-value="3">
+                    <span class="icon" style="color: #34c759;">!</span>
+                    <span class="nav-text">Niski (P3)</span>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h1 id="page-title">Wszystkie zadania</h1>
+            <div id="active-filters" class="active-filters-info"></div>
+        </header>
+
+        <div id="todo-list-container">
+            </div>
+    </main>
+</div>
+
+<div class="modal-overlay" id="add-modal">
+    <div class="modal">
+        <h2>Nowe Zadanie</h2>
+        <form id="todo-form">
+            <div class="form-group">
+                <label for="todo-input">Co jest do zrobienia?</label>
+                <input type="text" id="todo-input" class="form-control" placeholder="Np. Kupić mleko" required autocomplete="off">
+            </div>
+            
+            <div class="form-group">
+                <label for="todo-deadline">Termin wykonania</label>
+                <input type="date" id="todo-deadline" class="form-control" required>
+            </div>
+
+            <div class="form-row" style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="todo-priority">Priorytet</label>
+                    <select id="todo-priority" class="form-control">
+                        <option value="1">P1 - Wysoki</option>
+                        <option value="2">P2 - Średni</option>
+                        <option value="3" selected>P3 - Niski</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="flex: 1;">
+                    <label for="todo-category-select">Kategoria</label>
+                    <select id="todo-category-select" class="form-control">
+                        <option value="">Wybierz...</option>
+                        <option value="new">+ Nowa kategoria</option>
+                    </select>
+                </div>
+            </div>
+
+            <input type="text" id="todo-category-input" class="form-control" placeholder="Nazwa nowej kategorii" style="display: none; margin-bottom: 15px;">
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" id="close-add-modal">Anuluj</button>
+                <button type="submit" class="btn-primary">Zapisz zadanie</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="filter-modal">
+    <div class="modal">
+        <h2>Filtruj listę</h2>
+        <form id="filter-form">
+            <div class="form-group">
+                <label>Według priorytetu</label>
+                <select id="filter-priority" class="form-control">
+                    <option value="">Dowolny</option>
+                    <option value="1">Priorytet 1</option>
+                    <option value="2">Priorytet 2</option>
+                    <option value="3">Priorytet 3</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Według kategorii</label>
+                <select id="filter-category" class="form-control">
+                    <option value="">Dowolna</option>
+                    </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" id="close-filter-modal">Anuluj</button>
+                <button type="submit" class="btn-primary">Zastosuj filtr</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- ZMIENNE STANU ---
+        let todos = [];
+        let categories = [];
+        let currentView = 'all';
+        let activeFilter = null;
+
+        // --- SELEKTORY DOM ---
+        const sidebar = document.getElementById('sidebar');
+        const listContainer = document.getElementById('todo-list-container');
+        const pageTitle = document.getElementById('page-title');
+        const activeFiltersDiv = document.getElementById('active-filters');
+        
+        // Formularze
+        const addModal = document.getElementById('add-modal');
+        const filterModal = document.getElementById('filter-modal');
+        const todoForm = document.getElementById('todo-form');
+        const filterForm = document.getElementById('filter-form');
+        const categorySelect = document.getElementById('todo-category-select');
+        const categoryInput = document.getElementById('todo-category-input');
+
+        // Przyciski
+        const sidebarToggleBtn = document.getElementById('sidebar-toggle');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = themeToggleBtn.querySelector('.theme-icon');
+        const themeText = themeToggleBtn.querySelector('.theme-btn-text'); // Tekst przycisku
+
+        // URL API
+        const API_URL = '/api/todos';
+        const CAT_URL = '/api/categories';
+
+        // --- START ---
+        init();
+
+        function init() {
+            initializeTheme();
+            setupEventListeners();
+            fetchData();
+            document.getElementById('todo-deadline').valueAsDate = new Date();
+        }
+
+        // --- OBSŁUGA MOTYWU ---
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                updateThemeUI(true);
+            } else {
+                updateThemeUI(false);
+            }
+        }
+
+        function updateThemeUI(isDark) {
+            themeIcon.textContent = isDark ? '☀️' : '🌙';
+            themeText.textContent = isDark ? 'Tryb jasny' : 'Tryb ciemny';
+        }
+
+        function setupEventListeners() {
+            // Toggle Dark Mode
+            themeToggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                updateThemeUI(isDark);
+            });
+
+            // Sidebar toggle
+            sidebarToggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                sidebarToggleBtn.textContent = sidebar.classList.contains('collapsed') ? '❯' : '❮';
+            });
+
+            // Modale
+            document.getElementById('open-add-modal').addEventListener('click', () => openModal(addModal));
+            document.getElementById('close-add-modal').addEventListener('click', () => closeModal(addModal));
+            document.getElementById('open-filter-modal').addEventListener('click', () => {
+                populateSelects(); 
+                openModal(filterModal);
+            });
+            document.getElementById('close-filter-modal').addEventListener('click', () => closeModal(filterModal));
+
+            document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+                item.addEventListener('click', () => {
+                    setActiveNavItem(item);
+                    currentView = item.dataset.view;
+                    activeFilter = null;
+                    renderMainView();
+                });
+            });
+
+            document.querySelectorAll('.nav-item[data-filter-type="priority"]').forEach(item => {
+                item.addEventListener('click', () => {
+                    const p = parseInt(item.dataset.filterValue);
+                    applyFilter('priority', p, `Priorytet ${p}`);
+                });
+            });
+
+            categorySelect.addEventListener('change', () => {
+                if (categorySelect.value === 'new') {
+                    categoryInput.style.display = 'block';
+                    categoryInput.required = true;
+                    categoryInput.focus();
+                } else {
+                    categoryInput.style.display = 'none';
+                    categoryInput.required = false;
+                }
+            });
+
+            todoForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const content = document.getElementById('todo-input').value;
+                const priority = document.getElementById('todo-priority').value;
+                const deadline = document.getElementById('todo-deadline').value;
+                let catName = categorySelect.value;
+                
+                if (catName === 'new') catName = categoryInput.value;
+
+                if (content && catName && deadline) {
+                    await createTodo(content, priority, catName, deadline);
+                    closeModal(addModal);
+                    todoForm.reset();
+                    categoryInput.style.display = 'none';
+                    document.getElementById('todo-deadline').valueAsDate = new Date();
+                }
+            });
+
+            filterForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const p = document.getElementById('filter-priority').value;
+                const c = document.getElementById('filter-category').value;
+                
+                if (p || c) {
+                    currentView = 'filtered';
+                    activeFilter = { type: 'complex', priority: p, category: c };
+                    setActiveNavItem(document.getElementById('open-filter-modal'));
+                    renderMainView();
+                    closeModal(filterModal);
+                }
+            });
+        }
+
+        // --- API & LOGIKA DANYCH (Bez zmian) ---
+        async function fetchData() {
+            try {
+                const [todosRes, catsRes] = await Promise.all([
+                    fetch(API_URL),
+                    fetch(CAT_URL)
+                ]);
+
+                if (todosRes.ok) todos = await todosRes.json();
+                if (catsRes.ok) categories = await catsRes.json();
+
+                renderSidebarCategories();
+                renderMainView();
+            } catch (err) {
+                console.error("Błąd połączenia z API:", err);
+                listContainer.innerHTML = '<p style="color:var(--danger-color); text-align:center">Błąd połączenia z serwerem.</p>';
+            }
+        }
+
+        async function createTodo(content, priority, categoryName, deadline) {
+            const payload = {
+                content: content,
+                priority: parseInt(priority),
+                completed: false,
+                deadline: deadline,
+                category: { name: categoryName }
+            };
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    fetchData();
+                }
+            } catch (err) {
+                console.error("Nie udało się dodać:", err);
+            }
+        }
+
+        async function deleteTodo(id) {
+            if(!confirm("Usunąć zadanie?")) return;
+            try {
+                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                todos = todos.filter(t => t.id !== id);
+                renderMainView();
+            } catch(err) { console.error(err); }
+        }
+
+        async function toggleComplete(id, isCompleted) {
+            try {
+                await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ completed: isCompleted })
+                });
+                const t = todos.find(x => x.id === id);
+                if(t) t.completed = isCompleted;
+                renderMainView();
+            } catch(err) { console.error(err); }
+        }
+
+        // --- RENDEROWANIE ---
+        function renderMainView() {
+            listContainer.innerHTML = '';
+            activeFiltersDiv.innerHTML = '';
+            let filtered = [...todos];
+            let title = "Zadania";
+
+            const today = new Date().toISOString().split('T')[0];
+
+            if (currentView === 'today') {
+                title = "Dzisiaj";
+                filtered = filtered.filter(t => t.deadline === today);
+            } else if (currentView === 'upcoming') {
+                renderUpcomingGrouped(filtered, today);
+                return; 
+            } else if (currentView === 'filtered' && activeFilter) {
+                title = "Wyniki wyszukiwania";
+                if (activeFilter.type === 'complex') {
+                    if (activeFilter.priority) filtered = filtered.filter(t => t.priority == activeFilter.priority);
+                    if (activeFilter.category) filtered = filtered.filter(t => t.category && t.category.name === activeFilter.category);
+                    showFilterTag(`Złożony`);
+                } 
+                else if (activeFilter.type === 'priority') {
+                    filtered = filtered.filter(t => t.priority == activeFilter.value);
+                    showFilterTag(activeFilter.label);
+                } 
+                else if (activeFilter.type === 'category') {
+                    filtered = filtered.filter(t => t.category && t.category.name === activeFilter.value);
+                    showFilterTag(`Kategoria: ${activeFilter.label}`);
+                }
+            } else {
+                title = "Wszystkie zadania";
+            }
+
+            pageTitle.textContent = title;
+
+            filtered.sort((a, b) => {
+                if (a.completed !== b.completed) return a.completed ? 1 : -1;
+                if (a.deadline !== b.deadline) return a.deadline > b.deadline ? 1 : -1;
+                return a.priority - b.priority;
+            });
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `<div style="text-align:center; color:var(--text-muted); margin-top:50px;">Brak zadań w tym widoku.</div>`;
+                return;
+            }
+
+            filtered.forEach(todo => {
+                listContainer.appendChild(createTodoItem(todo));
+            });
+        }
+
+        function renderUpcomingGrouped(allTodos, todayStr) {
+            pageTitle.textContent = "Nadchodzące 7 dni";
+            const days = getNextDays(todayStr, 7);
+            let hasTasks = false;
+
+            days.forEach(dayInfo => {
+                const dayTasks = allTodos.filter(t => t.deadline === dayInfo.date);
+                
+                if (dayTasks.length > 0) {
+                    hasTasks = true;
+                    const groupHeader = document.createElement('div');
+                    groupHeader.className = 'task-group-title';
+                    groupHeader.textContent = `${dayInfo.name} (${dayInfo.date})`;
+                    listContainer.appendChild(groupHeader);
+
+                    dayTasks.sort((a, b) => a.priority - b.priority);
+                    dayTasks.forEach(t => listContainer.appendChild(createTodoItem(t)));
+                }
+            });
+
+            if (!hasTasks) {
+                listContainer.innerHTML = `<div style="text-align:center; color:var(--text-muted); margin-top:50px;">Brak planów na najbliższy tydzień. Odpocznij!</div>`;
+            }
+        }
+
+        function createTodoItem(todo) {
+            const el = document.createElement('div');
+            el.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+            const catName = todo.category ? todo.category.name : 'Bez kategorii';
+            const dateStr = todo.deadline ? `📅 ${todo.deadline}` : '';
+
+            el.innerHTML = `
+                <div class="todo-checkbox"></div>
+                <div class="todo-content">
+                    <span class="todo-text">${todo.content}</span>
+                    <div class="todo-meta">
+                        <span class="priority-tag priority-${todo.priority}">P${todo.priority}</span>
+                        <span>• 📂 ${catName}</span>
+                        <span style="margin-left:5px;">${dateStr}</span>
+                    </div>
+                </div>
+                <button class="delete-btn" title="Usuń">×</button>
+            `;
+
+            el.querySelector('.todo-checkbox').addEventListener('click', () => toggleComplete(todo.id, !todo.completed));
+            el.querySelector('.delete-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteTodo(todo.id);
+            });
+
+            return el;
+        }
+
+        function renderSidebarCategories() {
+            const list = document.getElementById('category-list');
+            list.innerHTML = '';
+            categories.forEach(cat => {
+                const li = document.createElement('li');
+                li.className = 'nav-item';
+                li.innerHTML = `<span class="icon">📂</span> <span class="nav-text">${cat.name}</span>`;
+                li.addEventListener('click', () => {
+                    applyFilter('category', cat.name, cat.name);
+                });
+                list.appendChild(li);
+            });
+        }
+
+        // --- POMOCNICZE ---
+        function openModal(modal) { modal.classList.add('open'); }
+        function closeModal(modal) { modal.classList.remove('open'); }
+
+        function populateSelects() {
+            const select = document.getElementById('filter-category');
+            select.innerHTML = '<option value="">Wszystkie</option>';
+            categories.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.name;
+                opt.textContent = c.name;
+                select.appendChild(opt);
+            });
+            
+            const addSelect = document.getElementById('todo-category-select');
+            addSelect.innerHTML = '<option value="">Wybierz...</option><option value="new">+ Nowa kategoria</option>';
+            categories.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.name;
+                opt.textContent = c.name;
+                addSelect.appendChild(opt);
+            });
+        }
+
+        function setActiveNavItem(element) {
+            document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
+            if(element && element.classList.contains('nav-item')) {
+                element.classList.add('active');
+            }
+        }
+
+        function applyFilter(type, value, label) {
+            currentView = 'filtered';
+            activeFilter = { type, value, label };
+            document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
+            renderMainView();
+        }
+
+        function showFilterTag(text) {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `${text} <span class="clear-filter">×</span>`;
+            tag.querySelector('.clear-filter').addEventListener('click', () => {
+                currentView = 'all';
+                activeFilter = null;
+                document.querySelector('[data-view="all"]').classList.add('active');
+                renderMainView();
+            });
+            activeFiltersDiv.appendChild(tag);
+        }
+
+        function getNextDays(startStr, count) {
+            const result = [];
+            const date = new Date(startStr);
+            date.setDate(date.getDate() + 1);
+            for(let i=0; i<count; i++) {
+                const dStr = date.toISOString().split('T')[0];
+                const dayName = date.toLocaleDateString('pl-PL', { weekday: 'long' });
+                result.push({
+                    date: dStr,
+                    name: dayName.charAt(0).toUpperCase() + dayName.slice(1)
+                });
+                date.setDate(date.getDate() + 1);
+            }
+            return result;
+        }
+    });
+</script>
+
+</body>
+</html>
