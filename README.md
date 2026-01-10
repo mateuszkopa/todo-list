@@ -1,34 +1,92 @@
-# Specyfikacja Wymagań - Organizer Zadań (Web To-Do List)
-Projekt realizowany w ramach przedmiotu Programowanie Obiektowe. Aplikacja jest serwisem internetowym służącym do zarządzania listą zadań z uwzględnieniem priorytetów, kategorii oraz terminów realizacji.
+# Organizer Zadań (To-Do List)
 
-## 1. Zarządzanie Zadaniami (Logika Biznesowa)
-Podstawowe operacje na obiektach zadań (Backend).
-- [ ] **Tworzenie zadania:** Przetwarzanie danych z formularza i utworzenie obiektu zadania.
-- [ ] **Edycja zadania:** Możliwość zmiany parametrów istniejącego zadania.
-- [ ] **Usuwanie zadania:** Usunięcie zadania z bazy danych/pliku na podstawie ID.
-- [ ] **Zmiana statusu:** Logika obsugi oznaczania zadania jako "Wykonane" (Done).
+Prosta i funkcjonalna aplikacja webowa do zarządzania zadaniami, stworzona w ramach projektu zaliczeniowego z Programowania Obiektowego. Aplikacja pozwala na tworzenie, edycję, usuwanie i organizowanie zadań w kategorie, z uwzględnieniem priorytetów i terminów realizacji.
 
-## 2. Atrybuty i Model Danych
-Szczegółowe właściwości obiektów.
-- [ ] **Priorytety:** Obsługa typu wyliczeniowego: *1, 2, 3*.
-- [ ] **Kategorie:** Przypisywanie etykiet do zadań (np. *Praca, Dom, Studia*).
-- [ ] **Terminy (Deadline):** Przechowywanie i formatowanie daty wykonania.
-- [ ] **Walidacja (Backend):** Sprawdzanie poprawności danych przesyłanych przez formularz (np. czy data nie jest pusta).
+## 🚀 Możliwości i Funkcje
 
-## 3. Przeglądanie i Organizacja
-Logika przygotowania danych dla widoku.
-- [ ] **Filtrowanie listy:** Metody zwracające podzbiór zadań (np. tylko "Do zrobienia").
-- [ ] **Sortowanie:** Sortowanie listy zadań po dacie lub priorytecie przed wysłaniem do widoku.
+### 📋 Zarządzanie Zadaniami
+*   **Dodawanie zadań:** Szybkie tworzenie zadań z określeniem treści, daty wykonania, priorytetu i kategorii.
+*   **Edycja statusu:** Oznaczanie zadań jako wykonane (checkbox).
+*   **Usuwanie:** Trwałe usuwanie niepotrzebnych zadań.
 
-## 4. Trwałość Danych (Persistence)
-- [ ] **Repozytorium:** Warstwa odpowiedzialna za zapis i odczyt danych.
-    * MariaDB.
+### 🗂 Organizacja i Filtrowanie
+*   **Kategorie:**
+    *   Tworzenie własnych kategorii (np. Praca, Dom, Zakupy).
+    *   Filtrowanie zadań po wybranej kategorii.
+    *   Usuwanie kategorii (zadania tracą przypisanie, ale nie są usuwane).
+*   **Priorytety:** Trzystopniowa skala priorytetów (P1 - Wysoki, P2 - Średni, P3 - Niski) z wizualnym rozróżnieniem kolorystycznym.
+*   **Widoki Czasowe:**
+    *   **Wszystkie:** Pełna lista zadań.
+    *   **Dziś:** Zadania z terminem na bieżący dzień.
+    *   **Nadchodzące:** Plan na najbliższe 7 dni z podziałem na dni tygodnia.
+*   **Filtrowanie zaawansowane:** Możliwość jednoczesnego filtrowania po kategorii i priorytecie.
 
-## 5. Interfejs Webowy (Frontend)
-Warstwa wizualna oparta o HTML/CSS.
-- [ ] **Strona Główna (Dashboard):** Wyświetla listę wszystkich zadań w formie tabeli lub kafelków.
-- [ ] **Formularz Dodawania:** Strona z polami: Tytuł, Kategoria, Priorytet, Data.
-- [ ] **Interakcje:**
-    - [ ] Przycisk "Usuń" przy każdym zadaniu.
-    - [ ] Checkbox lub przycisk do zmiany statusu na "Wykonane".
-    - [ ] Wizualne wyróżnienie priorytetów (np. kolor czerwony dla "High").
+### 🎨 Interfejs Użytkownika (UI/UX)
+*   **Responsywny design:** Estetyczny i czytelny interfejs.
+*   **Tryb Ciemny (Dark Mode):** Wbudowana obsługa motywu jasnego i ciemnego z zapisem preferencji.
+*   **Dynamiczny pasek boczny:** Możliwość zwijania menu bocznego dla większej przestrzeni roboczej.
+
+## 🛠 Technologia
+
+Projekt został zrealizowany w architekturze klient-serwer.
+
+### Backend (Serwer)
+*   **Język:** Java 25
+*   **Framework:** Spring Boot 4.0.1
+*   **Baza Danych:** MariaDB (uruchamiana w kontenerze Docker)
+*   **ORM:** Hibernate / Spring Data JPA
+*   **Build Tool:** Gradle
+
+### Frontend (Klient)
+*   **HTML5 & CSS3** (Custom properties, Flexbox)
+*   **JavaScript (Vanilla JS)** - komunikacja z API (Fetch API), obsługa DOM.
+
+## ⚙️ Wymagania wstępne
+
+Aby uruchomić projekt lokalnie, potrzebujesz:
+*   **Docker** oraz **Docker Compose** (do uruchomienia bazy danych).
+*   System operacyjny Linux/macOS (do skryptu `run.sh`) lub Windows (wymaga manualnego uruchomienia Dockera).
+*   *Opcjonalnie:* JDK 25 (jeśli chcesz budować projekt ręcznie bez wrappera Gradle).
+
+## ▶️ Uruchomienie aplikacji
+
+W katalogu głównym projektu znajduje się skrypt pomocniczy, który automatycznie stawia bazę danych i uruchamia aplikację.
+
+### Metoda automatyczna (Linux/macOS)
+Uruchom skrypt `run.sh`:
+```bash
+./run.sh
+```
+Skrypt ten:
+1.  Uruchomi kontener z bazą MariaDB.
+2.  Odczeka na inicjalizację bazy.
+3.  Uruchomi aplikację Spring Boot.
+4.  Po zakończeniu (Ctrl+C) posprząta (zatrzyma kontenery).
+
+### Metoda ręczna
+
+1.  **Uruchom bazę danych:**
+    ```bash
+    cd mariadb
+    docker-compose up -d
+    cd ..
+    ```
+2.  **Uruchom aplikację:**
+    ```bash
+    ./gradlew bootRun
+    ```
+
+Aplikacja będzie dostępna pod adresem: **http://localhost:8080**
+
+## 🧪 Testy
+
+Aby uruchomić testy jednostkowe/integracyjne (korzystają z wbudowanej bazy H2):
+```bash
+./gradlew test
+```
+
+## 📁 Struktura Projektu
+
+*   `src/main/java` - Kod źródłowy backendu (Kontrolery, Serwisy, Encje).
+*   `src/main/resources` - Konfiguracja (`application.properties`) oraz pliki statyczne frontendu (`static/`).
+*   `mariadb/` - Konfiguracja Docker Compose dla bazy danych.
