@@ -355,6 +355,21 @@
             } catch(err) { console.error(err); }
         }
 
+        async function deleteCategory(id, name) {
+            if(!confirm(`Usunąć kategorię "${name}"? Zadania z tej kategorii pozostaną, ale stracą przypisanie.`)) return;
+            try {
+                const res = await fetch(`${CAT_URL}/${id}`, { method: 'DELETE' });
+                if(res.ok) {
+                    if (activeFilter && activeFilter.type === 'category' && activeFilter.value === name) {
+                         currentView = 'all';
+                         activeFilter = null;
+                         setActiveNavItem(document.querySelector('[data-view="all"]'));
+                    }
+                    fetchData();
+                }
+            } catch(err) { console.error(err); }
+        }
+
         // --- RENDEROWANIE ---
         function renderMainView() {
             listContainer.innerHTML = '';
@@ -466,10 +481,22 @@
             categories.forEach(cat => {
                 const li = document.createElement('li');
                 li.className = 'nav-item';
-                li.innerHTML = `<span class="icon">📂</span> <span class="nav-text">${cat.name}</span>`;
-                li.addEventListener('click', () => {
+                li.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:12px; flex-grow:1;">
+                        <span class="icon">📂</span> <span class="nav-text">${cat.name}</span>
+                    </div>
+                    <button class="cat-delete-btn" title="Usuń kategorię">×</button>
+                `;
+                
+                li.querySelector('div').addEventListener('click', () => {
                     applyFilter('category', cat.name, cat.name);
                 });
+
+                li.querySelector('.cat-delete-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteCategory(cat.id, cat.name);
+                });
+
                 list.appendChild(li);
             });
         }
