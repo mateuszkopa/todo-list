@@ -411,20 +411,24 @@ body.dark-mode .todo-item:hover {
 .priority-2 { color: #ff9500; background: rgba(255, 149, 0, 0.1); }
 .priority-3 { color: #34c759; background: rgba(52, 199, 89, 0.1); }
 
-.delete-btn {
+.delete-btn, .edit-btn {
     background: none;
     border: none;
     color: var(--text-muted);
     cursor: pointer;
     padding: 8px;
     font-size: 1.4rem;
-    margin-left: 10px;
+    margin-left: 5px;
     transition: color 0.2s;
     line-height: 1;
 }
 
 .delete-btn:hover {
     color: var(--danger-color);
+}
+
+.edit-btn:hover {
+    color: var(--primary-color);
 }
 
 /* --- MODALS --- */
