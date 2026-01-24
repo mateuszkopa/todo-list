@@ -2,14 +2,14 @@
 
 Prosta i funkcjonalna aplikacja webowa do zarządzania zadaniami, stworzona w ramach projektu zaliczeniowego z Programowania Obiektowego. Aplikacja pozwala na tworzenie, edycję, usuwanie i organizowanie zadań w kategorie, z uwzględnieniem priorytetów i terminów realizacji.
 
-## 🚀 Możliwości i Funkcje
+## Możliwości i Funkcje
 
-### 📋 Zarządzanie Zadaniami
+### Zarządzanie Zadaniami
 *   **Dodawanie zadań:** Szybkie tworzenie zadań z określeniem treści, daty wykonania, priorytetu i kategorii.
 *   **Edycja statusu:** Oznaczanie zadań jako wykonane (checkbox).
 *   **Usuwanie:** Trwałe usuwanie niepotrzebnych zadań.
 
-### 🗂 Organizacja i Filtrowanie
+###  Organizacja i Filtrowanie
 *   **Kategorie:**
     *   Tworzenie własnych kategorii (np. Praca, Dom, Zakupy).
     *   Filtrowanie zadań po wybranej kategorii.
@@ -21,12 +21,12 @@ Prosta i funkcjonalna aplikacja webowa do zarządzania zadaniami, stworzona w ra
     *   **Nadchodzące:** Plan na najbliższe 7 dni z podziałem na dni tygodnia.
 *   **Filtrowanie zaawansowane:** Możliwość jednoczesnego filtrowania po kategorii i priorytecie.
 
-### 🎨 Interfejs Użytkownika (UI/UX)
+### Interfejs Użytkownika (UI/UX)
 *   **Responsywny design:** Estetyczny i czytelny interfejs.
 *   **Tryb Ciemny (Dark Mode):** Wbudowana obsługa motywu jasnego i ciemnego z zapisem preferencji.
 *   **Dynamiczny pasek boczny:** Możliwość zwijania menu bocznego dla większej przestrzeni roboczej.
 
-## 🛠 Technologia
+##  Technologia
 
 Projekt został zrealizowany w architekturze klient-serwer.
 
@@ -41,14 +41,14 @@ Projekt został zrealizowany w architekturze klient-serwer.
 *   **HTML5 & CSS3** (Custom properties, Flexbox)
 *   **JavaScript (Vanilla JS)** - komunikacja z API (Fetch API), obsługa DOM.
 
-## ⚙️ Wymagania wstępne
+## Wymagania wstępne
 
 Aby uruchomić projekt lokalnie, potrzebujesz:
 *   **Docker** oraz **Docker Compose** (do uruchomienia bazy danych).
 *   System operacyjny Linux/macOS (do skryptu `run.sh`) lub Windows (wymaga manualnego uruchomienia Dockera).
 *   *Opcjonalnie:* JDK 25 (jeśli chcesz budować projekt ręcznie bez wrappera Gradle).
 
-## ▶️ Uruchomienie aplikacji
+## Uruchomienie aplikacji
 
 W katalogu głównym projektu znajduje się skrypt pomocniczy, który automatycznie stawia bazę danych i uruchamia aplikację.
 
@@ -78,14 +78,14 @@ Skrypt ten:
 
 Aplikacja będzie dostępna pod adresem: **http://localhost:8080**
 
-## 🧪 Testy
+## Testy
 
 Aby uruchomić testy jednostkowe/integracyjne (korzystają z wbudowanej bazy H2):
 ```bash
 ./gradlew test
 ```
 
-## 📁 Struktura Projektu
+## Struktura Projektu
 
 *   `src/main/java` - Kod źródłowy backendu (Kontrolery, Serwisy, Encje).
 *   `src/main/resources` - Konfiguracja (`application.properties`) oraz pliki statyczne frontendu (`static/`).
