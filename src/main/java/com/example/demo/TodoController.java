@@ -25,12 +25,8 @@ public class TodoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Todo> updateTodoStatus(@PathVariable Long id, @RequestBody Map<String, Boolean> body) {
-        Boolean completed = body.get("completed");
-        if (completed == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        return todoService.updateTodoStatus(id, completed)
+    public ResponseEntity<Todo> updateTodo(@PathVariable Long id, @RequestBody Todo todo) {
+        return todoService.updateTodo(id, todo)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

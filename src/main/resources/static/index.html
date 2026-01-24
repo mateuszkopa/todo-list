@@ -81,8 +81,9 @@
 
 <div class="modal-overlay" id="add-modal">
     <div class="modal">
-        <h2>Nowe Zadanie</h2>
+        <h2 id="modal-title">Nowe Zadanie</h2>
         <form id="todo-form">
+            <input type="hidden" id="todo-id">
             <div class="form-group">
                 <label for="todo-input">Co jest do zrobienia?</label>
                 <input type="text" id="todo-input" class="form-control" placeholder="Np. Kupić mleko" required autocomplete="off">
@@ -165,6 +166,7 @@
         
         // Formularze
         const addModal = document.getElementById('add-modal');
+        const modalTitle = document.getElementById('modal-title');
         const filterModal = document.getElementById('filter-modal');
         const todoForm = document.getElementById('todo-form');
         const filterForm = document.getElementById('filter-form');
@@ -188,7 +190,6 @@
             initializeTheme();
             setupEventListeners();
             fetchData();
-            document.getElementById('todo-deadline').valueAsDate = new Date();
         }
 
         // --- OBSŁUGA MOTYWU ---
@@ -223,7 +224,7 @@
             });
 
             // Modale
-            document.getElementById('open-add-modal').addEventListener('click', () => openModal(addModal));
+            document.getElementById('open-add-modal').addEventListener('click', () => openTaskModal());
             document.getElementById('close-add-modal').addEventListener('click', () => closeModal(addModal));
             document.getElementById('open-filter-modal').addEventListener('click', () => {
                 populateSelects(); 
@@ -263,16 +264,18 @@
                 const content = document.getElementById('todo-input').value;
                 const priority = document.getElementById('todo-priority').value;
                 const deadline = document.getElementById('todo-deadline').value;
+                const id = document.getElementById('todo-id').value;
                 let catName = categorySelect.value;
                 
                 if (catName === 'new') catName = categoryInput.value;
 
                 if (content && catName && deadline) {
-                    await createTodo(content, priority, catName, deadline);
+                    if (id) {
+                         await updateTodoFull(id, content, priority, catName, deadline);
+                    } else {
+                         await createTodo(content, priority, catName, deadline);
+                    }
                     closeModal(addModal);
-                    todoForm.reset();
-                    categoryInput.style.display = 'none';
-                    document.getElementById('todo-deadline').valueAsDate = new Date();
                 }
             });
 
@@ -291,7 +294,7 @@
             });
         }
 
-        // --- API & LOGIKA DANYCH (Bez zmian) ---
+        // --- API & LOGIKA DANYCH ---
         async function fetchData() {
             try {
                 const [todosRes, catsRes] = await Promise.all([
@@ -327,9 +330,41 @@
                 });
                 if (res.ok) {
                     fetchData();
+                    todoForm.reset();
+                    categoryInput.style.display = 'none';
+                    document.getElementById('todo-deadline').valueAsDate = new Date();
                 }
             } catch (err) {
                 console.error("Nie udało się dodać:", err);
+            }
+        }
+        
+        async function updateTodoFull(id, content, priority, categoryName, deadline) {
+             // Find original to keep completed status (or update if I added that to form, but I didn't)
+             const original = todos.find(t => t.id == id);
+             if (!original) return;
+
+             const payload = {
+                content: content,
+                priority: parseInt(priority),
+                completed: original.completed,
+                deadline: deadline,
+                category: { name: categoryName }
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    fetchData();
+                    todoForm.reset();
+                    categoryInput.style.display = 'none';
+                }
+            } catch (err) {
+                 console.error("Nie udało się zaktualizować:", err);
             }
         }
 
@@ -338,19 +373,6 @@
             try {
                 await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
                 todos = todos.filter(t => t.id !== id);
-                renderMainView();
-            } catch(err) { console.error(err); }
-        }
-
-        async function toggleComplete(id, isCompleted) {
-            try {
-                await fetch(`${API_URL}/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ completed: isCompleted })
-                });
-                const t = todos.find(x => x.id === id);
-                if(t) t.completed = isCompleted;
                 renderMainView();
             } catch(err) { console.error(err); }
         }
@@ -367,6 +389,30 @@
                     }
                     fetchData();
                 }
+            } catch(err) { console.error(err); }
+        }
+
+        async function toggleComplete(id, isCompleted) {
+            const t = todos.find(x => x.id === id);
+            if (!t) return;
+            
+            // Construct full object payload
+            const payload = {
+                content: t.content,
+                priority: t.priority,
+                deadline: t.deadline,
+                completed: isCompleted,
+                category: t.category // backend handles {name: ...} or null
+            };
+
+            try {
+                await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                t.completed = isCompleted;
+                renderMainView();
             } catch(err) { console.error(err); }
         }
 
@@ -463,13 +509,27 @@
                         <span style="margin-left:5px;">${dateStr}</span>
                     </div>
                 </div>
+                <button class="edit-btn" title="Edytuj">✎</button>
                 <button class="delete-btn" title="Usuń">×</button>
             `;
 
-            el.querySelector('.todo-checkbox').addEventListener('click', () => toggleComplete(todo.id, !todo.completed));
+            el.querySelector('.todo-checkbox').addEventListener('click', (e) => {
+                 e.stopPropagation(); // prevent double click trigger
+                 toggleComplete(todo.id, !todo.completed);
+            });
+            
             el.querySelector('.delete-btn').addEventListener('click', (e) => {
                 e.stopPropagation();
                 deleteTodo(todo.id);
+            });
+
+            el.querySelector('.edit-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                openTaskModal(todo);
+            });
+
+            el.addEventListener('dblclick', () => {
+                openTaskModal(todo);
             });
 
             return el;
@@ -505,6 +565,53 @@
         function openModal(modal) { modal.classList.add('open'); }
         function closeModal(modal) { modal.classList.remove('open'); }
 
+        function openTaskModal(todo = null) {
+            populateSelects();
+            
+            if (todo) {
+                // Edit Mode
+                modalTitle.textContent = "Edytuj Zadanie";
+                document.getElementById('todo-id').value = todo.id;
+                document.getElementById('todo-input').value = todo.content;
+                document.getElementById('todo-deadline').value = todo.deadline;
+                document.getElementById('todo-priority').value = todo.priority;
+                
+                // Handle Category
+                const catName = todo.category ? todo.category.name : "";
+                const select = document.getElementById('todo-category-select');
+                
+                // Check if category exists in current list (it should)
+                let found = false;
+                for(let i=0; i<select.options.length; i++) {
+                    if (select.options[i].value === catName) {
+                        select.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found && catName) {
+                     // If for some reason category not in list, add it temporarily or handle gracefully
+                     // For now, default to empty
+                     select.value = "";
+                } else if (!catName) {
+                    select.value = "";
+                }
+                
+                categoryInput.style.display = 'none';
+
+            } else {
+                // Add Mode
+                modalTitle.textContent = "Nowe Zadanie";
+                todoForm.reset();
+                document.getElementById('todo-id').value = "";
+                document.getElementById('todo-deadline').valueAsDate = new Date();
+                categoryInput.style.display = 'none';
+            }
+            
+            openModal(addModal);
+        }
+
         function populateSelects() {
             const select = document.getElementById('filter-category');
             select.innerHTML = '<option value="">Wszystkie</option>';
@@ -516,6 +623,9 @@
             });
             
             const addSelect = document.getElementById('todo-category-select');
+            // Check current selection if any to preserve it if needed, but easier to rebuild
+            const currentVal = addSelect.value;
+            
             addSelect.innerHTML = '<option value="">Wybierz...</option><option value="new">+ Nowa kategoria</option>';
             categories.forEach(c => {
                 const opt = document.createElement('option');

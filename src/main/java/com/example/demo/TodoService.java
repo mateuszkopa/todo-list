@@ -26,14 +26,22 @@ public class TodoService {
         return todoRepository.save(todo);
     }
 
-    public Optional<Todo> updateTodoStatus(Long id, boolean completed) {
-        Optional<Todo> todoOptional = todoRepository.findById(id);
-        if (todoOptional.isPresent()) {
-            Todo todo = todoOptional.get();
-            todo.setCompleted(completed);
-            todoRepository.save(todo);
-        }
-        return todoOptional;
+    public Optional<Todo> updateTodo(Long id, Todo updatedTodo) {
+        return todoRepository.findById(id).map(todo -> {
+            todo.setContent(updatedTodo.getContent());
+            todo.setPriority(updatedTodo.getPriority());
+            todo.setDeadline(updatedTodo.getDeadline());
+            todo.setCompleted(updatedTodo.isCompleted());
+            
+            if (updatedTodo.getCategory() != null && updatedTodo.getCategory().getName() != null) {
+                Category category = categoryService.getOrCreateCategory(updatedTodo.getCategory().getName());
+                todo.setCategory(category);
+            } else {
+                todo.setCategory(null);
+            }
+            
+            return todoRepository.save(todo);
+        });
     }
 
     public void deleteTodo(Long id) {
