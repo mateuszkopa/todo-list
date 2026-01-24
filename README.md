@@ -90,3 +90,4 @@ Aby uruchomić testy jednostkowe/integracyjne (korzystają z wbudowanej bazy H2)
 *   `src/main/java` - Kod źródłowy backendu (Kontrolery, Serwisy, Encje).
 *   `src/main/resources` - Konfiguracja (`application.properties`) oraz pliki statyczne frontendu (`static/`).
 *   `mariadb/` - Konfiguracja Docker Compose dla bazy danych.
+[![Diagram UML](https://iili.io/f6o0Bx1.md.jpg)](https://freeimage.host/i/f6o0Bx1)
